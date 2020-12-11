@@ -1,0 +1,99 @@
+---
+title: "PROJETO SOLDADO CIDADÃO"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library("tidyr")
+library("dplyr")
+library("ggplot2")
+psc2017 <- read.csv("psc2017.csv")
+psc2018 <- read.csv("psc2018.csv")
+
+a <- psc2017 %>% select(CMD_MIL_AREA, UF, EFETIVO_FINAL) %>%
+group_by(CMD_MIL_AREA) %>% arrange(CMD_MIL_AREA) %>%
+summarise(EFETIVO_FINAL = sum(EFETIVO_FINAL)) %>%
+mutate(ANO = "2017")
+
+a <- rename(a, BENEFICIADOS = EFETIVO_FINAL)
+
+a <- rename(a, REGIAO = CMD_MIL_AREA)
+
+b <- psc2018 %>% 
+  select(CMD_MIL_AREA, UF, EFETIVO_FINAL) %>%
+  group_by(CMD_MIL_AREA) %>% 
+  arrange(CMD_MIL_AREA) %>% 
+  summarise(EFETIVO_FINAL = sum(EFETIVO_FINAL)) %>% 
+  mutate(ANO = "2018")
+
+b <- rename(b, BENEFICIADOS = EFETIVO_FINAL)
+
+b <- rename(b, REGIAO = CMD_MIL_AREA)
+
+c <- psc2017 %>% 
+  select(UF, EFETIVO_FINAL) %>%
+  group_by(UF) %>% 
+  arrange(UF) %>% 
+  summarise(EFETIVO_FINAL = sum(EFETIVO_FINAL)) %>% 
+  mutate(ANO = "2017")
+
+c <- rename(c, BENEFICIADOS = EFETIVO_FINAL)
+
+d <- psc2018 %>% 
+  select(UF, EFETIVO_FINAL) %>%
+  group_by(UF) %>% 
+  arrange(UF) %>% 
+  summarise(EFETIVO_FINAL = sum(EFETIVO_FINAL)) %>% 
+  mutate(ANO = "2018")
+
+d <- rename(d, BENEFICIADOS = EFETIVO_FINAL)
+
+PSC_REGIAO_2017_2018 <- bind_rows(a, b)
+PSC_UF_2017_2018 <- bind_rows(c, d)
+```
+
+## OBJETO
+
+## OBJETIVOS
+
+## MÉTODO
+
+## GRÁFICO 1
+
+```{r grafico 1, echo=FALSE}
+PSC_REGIAO_2017_2018 %>% 
+  ggplot(aes(x = REGIAO, y = BENEFICIADOS, fill = ANO)) +
+  geom_col() +
+  labs(title = "PROJETO SOLDADO CIDADÃO POR C MIL ÁREA - 2017 E 2018",
+       y = "N° DE BENEFICIADOS",
+       x = "COMANDO MILITAR DE ÁREA",
+       color = "ANO") +
+  theme(panel.grid.major.y = element_line(linetype = "dashed"))
+```
+
+## GRÁFICO 2
+
+```{r grafico 2, echo=FALSE}
+PSC_UF_2017_2018 %>% 
+  filter(ANO %in% c(2017, 2018)) %>%
+  ggplot(aes(x = BENEFICIADOS, y = reorder(UF, BENEFICIADOS))) +
+  geom_line(aes(group = UF), color = "grey50") +
+  geom_point(aes(color = factor(ANO))) + 
+  labs(title = "PROJETO SOLDADO CIDADÃO POR UF - 2017 E 2018",
+       y = "UF",
+       x = "BENEFICIADOS",
+       color = "ANO") +
+  theme(panel.grid.major.y = element_line(linetype = "dashed"))
+```
+
+## CONCLUSÕES
+
+```{r cars}
+summary(cars)
+```
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
