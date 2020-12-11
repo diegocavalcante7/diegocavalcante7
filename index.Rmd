@@ -1,0 +1,72 @@
+---
+title: "Índice de confiança nas instituições democráticas"
+author: "DIEGO CAVALCANTE e YURY MACHADO"
+date: "05/12/2020"
+output: ioslides_presentation
+code_folding: hide
+---
+
+```{r setup, echo=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r Load, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+lapply(c("tidyverse","haven","lubridate",
+         "janitor","readxl","moderndive", "ggplot2",
+         "stringr", "magrittr","srvyr",
+         "survey"),require,character.only=T)
+library(tidyverse)
+library(ggplot2)
+library(readxl)
+library(foreign)
+library(scales)
+library(moderndive)
+library(infer)
+library(psy)
+```
+## Justificativa Teórica
+
+Uma das características fundamentais para a criação e manutenção de uma instituição o reconhecimento de sua legitimidade.
+
+
+Para instituições que constituem as democracias liberais comtemporâneas, como as Câmaras Legislativas, o Judiciário, os partidos políticos e o executivo, é  fundamental que os cidadãos reconheçam as instituições como pilares do sistema democrático, e por isso, garantidoras de seus direitos e liberdades.
+
+No entanto, é possível observar que discursos que deslegitimam tais instituições vem crescendo no Brasil, em especial ao considerarmos que o presidente eleito em 2018 possui um histórico de críticas ao poder legislativo e ao Supremo Tribunal Federal, algo que continuou se manifestando após sua posse.
+
+## Justificativa Teórica
+
+Portanto, torna-se de grande interesse para a ciência política analisar o quanto esses discursos estão presentes na opnião pública.
+
+
+Este trabalho visa a realização dessa tarefa a partir do banco de dados do Estudo Eleitoral Brasileiro (ESEB), usando uma questão que indaga o quanto o entrevistado confia nas instituições citadas acima, e dessa forma, criar um índice de confiança nas instituições democráticas.
+
+O gráfico exposto na próxima sessão é o produto desse índice.
+```{r}
+Eseb2018 <- read_dta("ESEB2018.dta")
+
+Eseb2018 %>%       
+  select(P404, P405, P407, P408) %>% 
+  cronbach()
+categorias <- c()
+lvl_trust2 <-  Eseb2018 %>%       
+  select(P404, P405, P407, P408) %>% 
+  mutate(trust = P404 + P405 + P407 + P408)%>%
+  filter(trust <= 16)
+```
+## Gráfico
+```{r, echo=FALSE, warning=FALSE}
+lvl_trust2 %>% 
+  ggplot(aes(x = trust)) +
+  geom_histogram( binwidth = 2, boundary = 1, color = "darkblue", fill="lightblue") +
+  scale_y_continuous(limits = c(0, 800), breaks = breaks_width(100))+
+  scale_x_continuous(breaks = breaks_width(100))+ 
+  geom_vline(aes(xintercept=mean(trust)),
+             color="orange", size=1.5)+
+  geom_vline(aes(xintercept=median(trust)),
+             color="red", size=1.5)+
+  geom_text(aes(x=12.8, label="Média", y=775), colour="orange", text=element_text(size=11)) +
+  geom_text(aes(x=11.3, label="Mediana", y=775), colour="red", text=element_text(size=11))+
+  scale_fill_manual(name="Linhas verticais",values=c("red","orange"),labels=c("Mediana","Média"))+
+  labs(x = "Muita Confiança             Alguma confiança                  Pouca confiança         Nenhuma confiança", title="Confiança nas instituições democráticas")
+```
